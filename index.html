@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Todo App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            background: #6c5ce7;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background: #5b4cc4;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1.2), opacity 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+            background: #f5f6fa;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #a4b0be;
+        }
+
+        .todo-text {
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #74b9ff;
+        }
+
+        .edit-btn:hover:not(:disabled) {
+            background: #0984e3;
+        }
+
+        .complete-btn {
+            background: #00b894;
+        }
+
+        .complete-btn:hover:not(:disabled) {
+            background: #00a884;
+        }
+
+        .delete-btn {
+            background: #ff7675;
+        }
+
+        .delete-btn:hover:not(:disabled) {
+            background: #d63031;
+        }
+
+        .dustbin {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #ff7675;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .dustbin.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .todo-item.flying {
+            position: fixed;
+            z-index: 1000;
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .todo-item.fade-out {
+            opacity: 0;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .todo-item.appear {
+            animation: appear 0.3s ease-out;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .notification.success {
+            background: #00b894;
+        }
+
+        .notification.error {
+            background: #ff7675;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn {
+            background: #ff7675;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover:not(:disabled) {
+            background: #d63031;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .todo-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .todo-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .action-btn {
+                flex: 1;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Todo List</h1>
+            <div class="user-section">
+                <span id="userInfo" class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span id="userName"></span>
+                </span>
+                <button onclick="logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+        <div class="input-section">
+            <input type="text" id="todoInput" placeholder="Add a new task...">
+            <button onclick="addTodo()" class="add-btn">Add Task</button>
+        </div>
+        <ul id="todoList" class="todo-list"></ul>
+    </div>
+
+    <div class="dustbin">
+        <i class="fas fa-trash"></i>
+    </div>
+
+    <script>
+        const todoInput = document.getElementById('todoInput');
+        const todoList = document.getElementById('todoList');
+        const dustbin = document.querySelector('.dustbin');
+        const API_URL = 'http://localhost:3000';
+        let todos = [];
+        let editingId = null;
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        // Load todos when page loads
+        loadTodos();
+
+        async function loadTodos() {
+            try {
+                const response = await fetch(`${API_URL}/api/todos`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    todos = await response.json();
+                    renderTodos();
+                } else if (response.status === 401) {
+                    // Token expired or invalid
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                } else {
+                    console.error('Failed to load todos');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function addTodo() {
+            const text = todoInput.value.trim();
+            if (!text) return;
+
+            if (editingId !== null) {
+                // Update existing todo
+                const todo = todos.find(t => t.id === editingId);
+                if (todo) {
+                    todo.text = text;
+                    editingId = null;
+                    todoInput.value = '';
+                    document.querySelector('.add-btn').textContent = 'Add Task';
+                    renderTodos();
+                }
+            } else {
+                try {
+                    console.log('Sending todo:', { text });
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        console.error('No authentication token found');
+                        window.location.href = '/login.html';
+                        return;
+                    }
+
+                    const response = await fetch(`${API_URL}/api/todos`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ text })
+                    });
+
+                    if (response.ok) {
+                        const newTodo = await response.json();
+                        console.log('Todo added successfully:', newTodo);
+                        todos.push(newTodo);
+                        todoInput.value = '';
+                        renderTodos();
+                    } else if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/login.html';
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Server error:', errorData);
+                        alert('Failed to add todo: ' + (errorData.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    alert('Failed to add todo. Please check your connection and try again.');
+                }
+            }
+        }
+
+        function renderTodos() {
+            todoList.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.setAttribute('data-id', todo.id);
+                li.innerHTML = `
+                    <span class="todo-text">${todo.text}</span>
+                    <div class="todo-actions">
+                        <button class="action-btn edit-btn" onclick="editTodo(${todo.id})" ${todo.completed ? 'disabled' : ''}>
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button class="action-btn complete-btn" onclick="toggleTodo(${todo.id})">
+                            <i class="fas ${todo.completed ? 'fa-undo' : 'fa-check'}"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteTodo(${todo.id})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                todoList.appendChild(li);
+            });
+        }
+
+        function editTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                editingId = id;
+                todoInput.value = todo.text;
+                todoInput.focus();
+                document.querySelector('.add-btn').textContent = 'Update Task';
+            }
+        }
+
+        async function toggleTodo(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/todos/${id}/toggle`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const todo = todos.find(t => t.id === id);
+                    if (todo) {
+                        todo.completed = !todo.completed;
+                        if (todo.completed) {
+                            celebrateTodoCompletion();
+                            const todoElement = document.querySelector(`[data-id="${id}"]`);
+                            if (todoElement) {
+                                animateDelete(todoElement, id);
+                            }
+                        }
+                        renderTodos();
+                    }
+                } else if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to update todo. Please try again.');
+            }
+        }
+
+        async function deleteTodo(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/todos/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    todos = todos.filter(todo => todo.id !== id);
+                    renderTodos();
+                } else if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete todo. Please try again.');
+            }
+        }
+
+        function animateDelete(element, id) {
+            // Show and open dustbin
+            dustbin.classList.add('show');
+            setTimeout(() => dustbin.classList.add('open'), 100);
+
+            // Animate todo
+            element.classList.add('flying');
+
+            // Remove todo after animation
+            setTimeout(() => {
+                deleteTodo(id);
+
+                // Close and hide dustbin
+                dustbin.classList.remove('open');
+                setTimeout(() => {
+                    dustbin.classList.remove('show');
+                }, 500);
+            }, 1000);
+        }
+
+        function celebrateTodoCompletion() {
+            // Change background
+            document.body.classList.add('celebration');
+            setTimeout(() => {
+                document.body.classList.remove('celebration');
+            }, 2000);
+
+            // Trigger confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#9796f0', '#fbc7d4', '#b721ff', '#a18cd1', '#fbc2eb']
+            });
+        }
+
+        // Handle enter key in todo input
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        // Handle escape key to cancel editing
+        todoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && editingId !== null) {
+                editingId = null;
+                todoInput.value = '';
+                document.querySelector('.add-btn').textContent = 'Add Task';
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+
+</html>

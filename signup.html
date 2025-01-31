@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ✨ Todo App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            background: #6c5ce7;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #5b4cc4;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #2d3436;
+        }
+
+        .login-link a {
+            color: #6c5ce7;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .notification.success {
+            background: #00b894;
+        }
+
+        .notification.error {
+            background: #ff7675;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            padding: 0;
+            width: auto;
+            color: #6c5ce7;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .toggle-password:hover {
+            color: #5b4cc4;
+            transform: translateY(-50%);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Account ✨</h1>
+        <form id="signupForm" onsubmit="signup(event)">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <div class="password-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter your password">
+                    <button type="button" class="toggle-password" onclick="togglePassword()">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="/login.html">Login</a>
+        </div>
+    </div>
+
+    <script>
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.toggle-password i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.className = 'fas fa-eye';
+            }
+        }
+
+        // Check if user is already logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = '/';
+        }
+    </script>
+    <script src="auth.js"></script>
+</body>
+</html>
