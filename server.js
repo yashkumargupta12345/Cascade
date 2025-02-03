@@ -7,7 +7,10 @@ const cors = require('cors');
 const app = express();
 
 // Configure CORS
-app.use(cors());
+app.use(cors({
+    origin: ['https://daily-task-management-zmdu.onrender.com'],
+    credentials: true
+  }));
 app.use(express.json());
 app.use(express.static('public'));
 

@@ -8,7 +8,7 @@ async function checkAuth() {
     }
     
     try {
-        const response = await fetch('http://localhost:3000/api/users/' + currentUser.id + '/todos', {
+        const response = await fetch('https://daily-task-management-zmdu.onrender.com/api/users/' + currentUser.id + '/todos', {
             headers: {
                 'Authorization': 'Bearer ' + token
             }
@@ -29,7 +29,7 @@ async function checkAuth() {
     }
 }
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://daily-task-management-zmdu.onrender.com';
 
 // Function to handle login
 async function login(event) {
