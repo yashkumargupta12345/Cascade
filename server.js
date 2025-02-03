@@ -9,12 +9,21 @@ const app = express();
 // Configure CORS
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static('public'));
 
-const JWT_SECRET = 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/ToDoApp').then(() => {
+// mongoose.connect('mongodb://localhost:27017/ToDoApp').then(() => {
+//     console.log('Connected to MongoDB successfully');
+// }).catch(err => {
+//     console.error('MongoDB connection error:', err);
+// });
+
+// MongoDB connection
+// mongoose.connect('mongodb+srv://yashkumargupta:MmhkPUSkWonHZoKR@todoapp.abdmx.mongodb.net/?retryWrites=true&w=majority&appName=ToDoApp').then(() => {
+
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ToDoApp').then(() => {
     console.log('Connected to MongoDB successfully');
 }).catch(err => {
     console.error('MongoDB connection error:', err);
@@ -160,17 +169,17 @@ app.post('/api/todos', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        
+
         const newTodo = {
             id: Date.now(),
             text,
             completed: false,
             createdAt: new Date()
         };
-        
+
         user.todos.push(newTodo);
         await user.save();
-        
+
         res.status(201).json(newTodo);
     } catch (error) {
         console.error('Create todo error:', error);
@@ -189,10 +198,10 @@ app.put('/api/todos/:id/toggle', authenticateToken, async (req, res) => {
         if (!todo) {
             return res.status(404).json({ message: 'Todo not found' });
         }
-        
+
         todo.completed = !todo.completed;
         await user.save();
-        
+
         res.json(todo);
     } catch (error) {
         console.error('Toggle todo error:', error);
@@ -209,7 +218,7 @@ app.delete('/api/todos/:id', authenticateToken, async (req, res) => {
 
         user.todos = user.todos.filter(t => t.id !== parseInt(req.params.id));
         await user.save();
-        
+
         res.json({ message: 'Todo deleted successfully' });
     } catch (error) {
         console.error('Delete todo error:', error);
